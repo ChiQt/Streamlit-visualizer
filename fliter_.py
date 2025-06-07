@@ -13,11 +13,11 @@ st.set_page_config(
 )
 
 # 标题和介绍
-st.title("📈 交互式算法参数可视化")
+st.title("📈 信号处理算法（滤波器设计）可视化")     # 交互式算法参数可视化
 st.markdown("""
 调整右侧边栏的参数，实时查看算法输出结果的变化。
-本示例展示了信号处理算法（滤波器设计）的可视化。
 """)
+# 本示例展示了信号处理算法（滤波器设计）的可视化。
 
 # 创建带有标签的侧边栏参数控制
 with st.sidebar:
@@ -78,7 +78,7 @@ def generate_signal(signal_type, duration, sample_rate, noise_level):
 def design_filter(algorithm_type, cutoff_freq, sample_rate, filter_order, bandwidth=None):
     nyquist = 0.5 * sample_rate
     normal_cutoff = cutoff_freq / nyquist
-    
+
     if algorithm_type == "低通滤波器":
         b, a = signal.butter(filter_order, normal_cutoff, btype='low')
     elif algorithm_type == "高通滤波器":
@@ -87,12 +87,11 @@ def design_filter(algorithm_type, cutoff_freq, sample_rate, filter_order, bandwi
         low = (cutoff_freq - bandwidth/2) / nyquist
         high = (cutoff_freq + bandwidth/2) / nyquist
         b, a = signal.butter(filter_order, [low, high], btype='band')
-    
     return b, a
 
-# 应用滤波器
-def apply_filter(signal, b, a):
-    return signal.filtfilt(b, a, signal)
+# ✅ 注意这里参数是 input_signal 而不是 signal
+def apply_filter(input_signal, b, a):
+    return signal.filtfilt(b, a, input_signal)  # 使用 scipy.signal.filtfilt
 
 # 计算频率响应
 def frequency_response(b, a, sample_rate):
@@ -115,11 +114,11 @@ with col1:
     st.subheader("时域信号")
     
     fig1, ax1 = plt.subplots(figsize=(10, 5))
-    ax1.plot(t, original_signal, label='原始信号', alpha=0.7)
-    ax1.plot(t, filtered_signal, label='滤波后信号', linewidth=2)
-    ax1.set_xlabel('时间 (秒)')
-    ax1.set_ylabel('幅度')
-    ax1.set_title('信号处理前后对比')
+    ax1.plot(t, original_signal, label='Original signal', alpha=0.7)        
+    ax1.plot(t, filtered_signal, label='The filtered signal', linewidth=2)
+    ax1.set_xlabel('Time (s)')
+    ax1.set_ylabel('amplitude')
+    ax1.set_title('Before and after signal processing')  # 
     ax1.grid(True)
     ax1.legend()
     st.pyplot(fig1)
@@ -140,7 +139,7 @@ with col2:
     fig2 = go.Figure()
     fig2.add_trace(go.Scatter(x=freqs, y=response, mode='lines', name='频率响应'))
     fig2.update_layout(
-        title='滤波器频率响应',
+        title='滤波器频率响应',   
         xaxis_title='频率 (Hz)',
         yaxis_title='增益 (dB)',
         height=400,
@@ -166,11 +165,11 @@ with col2:
     freqs_fft = np.fft.rfftfreq(len(original_signal), 1/sample_rate)
     
     fig3, ax3 = plt.subplots(figsize=(10, 4))
-    ax3.semilogy(freqs_fft, fft_original, label='原始信号', alpha=0.7)
-    ax3.semilogy(freqs_fft, fft_filtered, label='滤波后信号')
-    ax3.set_xlabel('频率 (Hz)')
-    ax3.set_ylabel('幅度 (log)')
-    ax3.set_title('信号频谱')
+    ax3.semilogy(freqs_fft, fft_original, label='Original signal', alpha=0.7)
+    ax3.semilogy(freqs_fft, fft_filtered, label='The filtered signal')
+    ax3.set_xlabel('Frequency (Hz)')
+    ax3.set_ylabel('amplitude (log)')
+    ax3.set_title('Signal Spectrum')
     ax3.grid(True)
     ax3.legend()
     ax3.set_xlim(0, min(200, sample_rate/2))
